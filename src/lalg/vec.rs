@@ -31,8 +31,7 @@ impl Default for Vec3 {
 impl Vec3 {
     /// Convert to unit vector
     pub fn unit_vec(self) -> Vec3 {
-        // self / self.len()
-        todo!()
+        self / self.len()
     }
 }
 
