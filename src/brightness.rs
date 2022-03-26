@@ -8,15 +8,9 @@ impl Brightness {
     /// Convert brightness value to a corresponding ASCII character
     pub fn to_ascii(self) -> char {
         let b = self.0.clamp(0.0, 1.0);
-        let offset = 0.01;
 
-        for i in 0..PALETTE.len() - 1 {
-            if (b + offset) >= 1.0 / (i + 1) as f64 {
-                return PALETTE[i];
-            }
-        }
-
-        return *PALETTE.last().unwrap();
+        let idx = ((PALETTE.len() - 1) as f64 * (1.0 - b)).round() as usize;
+        PALETTE[idx]
     }
 }
 
@@ -50,7 +44,13 @@ mod tests {
 
     #[test]
     fn dot() {
-        let b = Brightness(0.97);
+        let b = Brightness(0.90);
         assert_eq!(b.to_ascii(), '.');
+    }
+
+    #[test]
+    fn black() {
+        let b = Brightness(0.0);
+        assert_eq!(b.to_ascii(), '@');
     }
 }
