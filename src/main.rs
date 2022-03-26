@@ -72,5 +72,5 @@ fn hit_sphere(center: Point3, radius: f64, ray: Ray) -> bool {
     let c = oc.dot(oc) - radius.powi(2);
     let discr = b.powi(2) - (4.0 * a * c);
 
-    return discr > 0.0;
+    discr > 0.0
 }
