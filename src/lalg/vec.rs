@@ -182,9 +182,9 @@ impl From<[f64; 3]> for Vec3 {
     }
 }
 
-impl Into<[f64; 3]> for Vec3 {
-    fn into(self) -> [f64; 3] {
-        [self.x, self.y, self.z]
+impl From<Vec3> for [f64; 3] {
+    fn from(v: Vec3) -> Self {
+        [v.x, v.y, v.z]
     }
 }
 
@@ -198,8 +198,8 @@ impl From<(f64, f64, f64)> for Vec3 {
     }
 }
 
-impl Into<(f64, f64, f64)> for Vec3 {
-    fn into(self) -> (f64, f64, f64) {
-        (self.x, self.y, self.z)
+impl From<Vec3> for (f64, f64, f64) {
+    fn from(v: Vec3) -> Self {
+        (v.x, v.y, v.z)
     }
 }
