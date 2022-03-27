@@ -53,6 +53,40 @@ impl Vec3 {
             return p;
         }
     }
+
+    /// Constructs a random unit vector
+    pub fn random_unit_vec() -> Self {
+        Vec3::random_in_unit_sphere().unit_vec()
+    }
+
+    /// Constructs a random vector that is in a hemisphere
+    pub fn random_in_hemisphere(normal: Vec3) -> Vec3 {
+        let in_unit_sphere = Vec3::random_in_unit_sphere();
+
+        if in_unit_sphere.dot(normal) > 0.0 {
+            in_unit_sphere
+        } else {
+            -in_unit_sphere
+        }
+    }
+
+    /// Constructs a random vector that is in the unit disk
+    pub fn random_in_unit_disk() -> Self {
+        let mut rng = rand::thread_rng();
+
+        loop {
+            let p = Vec3 {
+                x: rng.gen_range(-1.0..1.0),
+                y: rng.gen_range(-1.0..1.0),
+                z: 0.0,
+            };
+
+            if p.len_sq() >= 1.0 {
+                continue;
+            }
+            return p;
+        }
+    }
 }
 
 impl Default for Vec3 {
