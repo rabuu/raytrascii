@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use raytrascii::brightness::Brightness;
+use raytrascii::camera::Camera;
 use raytrascii::hittable::{Hittable, HittableList, Sphere};
 use raytrascii::lalg::{Point3, Vec3};
 use raytrascii::ray::Ray;
@@ -27,25 +28,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let scene = HittableList::new(vec![sphere1, sphere2]);
 
     // camera
-    let viewport_height = 2.0;
-    let viewport_width = aspect_ratio * viewport_height;
-    let focal_length = 1.0;
+    let lookfrom = Point3::origin();
+    let lookat = Point3::new(0.0, 0.0, -1.0);
+    let vup = Vec3::new(0.0, 1.0, 0.0);
+    let vfov = 90.0;
 
-    let origin = Point3::origin();
-    let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner =
-        origin - (horizontal / 2.0) - (vertical / 2.0) - Vec3::new(0.0, 0.0, focal_length);
+    let cam = Camera::new(lookfrom, lookat, vup, vfov, aspect_ratio);
 
     // render
     for j in (0..rows).rev() {
         for i in 0..cols {
-            let u = i as f64 / (cols - 1) as f64;
-            let v = j as f64 / (rows - 1) as f64;
+            let s = i as f64 / (cols - 1) as f64;
+            let t = j as f64 / (rows - 1) as f64;
 
-            let direction = lower_left_corner + (u * horizontal) + (v * vertical) - origin;
-
-            let ray = Ray::new(origin, direction);
+            let ray = cam.get_ray(s, t);
 
             let brightness = ray_brightness(&ray, &scene);
             stdout.queue(style::Print(brightness))?;
