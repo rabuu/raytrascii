@@ -1,3 +1,5 @@
+//! Display and handle brightness values
+
 const PALETTE: [char; 12] = [' ', '.', ':', ';', '~', '=', 'O', '#', '8', '%', 'B', '@'];
 
 /// Wrapper to hold a brightness value from 0/black to 1/white

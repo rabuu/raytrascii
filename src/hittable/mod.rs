@@ -1,3 +1,5 @@
+//! Hittable objects
+
 use std::fmt::Debug;
 
 use crate::lalg::{Point3, Vec3};
