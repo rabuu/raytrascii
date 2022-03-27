@@ -4,6 +4,7 @@ use raytrascii::brightness::Brightness;
 use raytrascii::camera::Camera;
 use raytrascii::hittable::{Hittable, HittableList, Sphere};
 use raytrascii::lalg::{Point3, Vec3};
+use raytrascii::material::Lambertian;
 use raytrascii::ray::Ray;
 
 use crossterm::terminal::{self, ClearType};
@@ -20,10 +21,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // canvas
     let (cols, rows) = terminal::size()?;
     let aspect_ratio = cols as f64 / (rows * 2) as f64;
+    let max_depth = 50;
 
     // scene
-    let sphere1 = Box::new(Sphere::new(Point3::new(0.5, 0.0, -1.0), 0.3));
-    let sphere2 = Box::new(Sphere::new(Point3::new(-0.5, 0.0, -1.0), 0.3));
+    let sphere1 = Box::new(Sphere::new(
+        Point3::new(0.5, 0.0, -1.0),
+        0.3,
+        Box::new(Lambertian::new(Brightness(0.0))),
+    ));
+    let sphere2 = Box::new(Sphere::new(
+        Point3::new(-0.5, 0.0, -1.0),
+        0.3,
+        Box::new(Lambertian::new(Brightness(0.3))),
+    ));
 
     let scene = HittableList::new(vec![sphere1, sphere2]);
 
@@ -43,7 +53,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let ray = cam.get_ray(s, t);
 
-            let brightness = ray_brightness(&ray, &scene);
+            let brightness = ray_brightness(&ray, &scene, max_depth);
             stdout.queue(style::Print(brightness))?;
         }
         stdout.queue(style::Print("\n"))?;
@@ -56,8 +66,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn ray_brightness(ray: &Ray, scene: &HittableList) -> Brightness {
-    if let Some(_rec) = scene.hit(ray, 0.0, f64::INFINITY) {
+fn ray_brightness(ray: &Ray, scene: &HittableList, depth: usize) -> Brightness {
+    if depth == 0 {
+        return Brightness(0.0);
+    }
+
+    if let Some(rec) = scene.hit(ray, 0.05, f64::INFINITY) {
+        if let Some((attenuation, scattered)) = rec.mat_ptr.scatter(ray, &rec) {
+            return attenuation * ray_brightness(&scattered, scene, depth - 1);
+        }
         return Brightness(0.0);
     }
 
