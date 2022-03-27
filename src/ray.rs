@@ -3,7 +3,7 @@
 use crate::lalg::{Point3, Vec3};
 
 /// Ray structure that stores an origin a direction
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Ray {
     pub origin: Point3,
     pub dir: Vec3,
