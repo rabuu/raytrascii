@@ -1,5 +1,7 @@
 //! Display and handle brightness values
 
+use std::ops;
+
 const PALETTE: [char; 12] = [' ', '.', ':', ';', '~', '=', 'O', '#', '8', '%', 'B', '@'];
 
 /// Wrapper to hold a brightness value from 0/black to 1/white
@@ -19,6 +21,79 @@ impl Brightness {
 impl std::fmt::Display for Brightness {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.to_ascii())
+    }
+}
+
+/* ALGEBRAIC OPS */
+impl ops::Neg for Brightness {
+    type Output = Brightness;
+
+    fn neg(self) -> Self::Output {
+        Brightness(-self.0)
+    }
+}
+
+impl ops::Add<Brightness> for Brightness {
+    type Output = Brightness;
+
+    fn add(self, rhs: Brightness) -> Self::Output {
+        Brightness(self.0 + rhs.0)
+    }
+}
+
+impl ops::AddAssign<Brightness> for Brightness {
+    fn add_assign(&mut self, rhs: Brightness) {
+        self.0 += rhs.0;
+    }
+}
+
+impl ops::Sub<Brightness> for Brightness {
+    type Output = Brightness;
+
+    fn sub(self, rhs: Brightness) -> Self::Output {
+        Brightness(self.0 - rhs.0)
+    }
+}
+
+impl ops::SubAssign<Brightness> for Brightness {
+    fn sub_assign(&mut self, rhs: Brightness) {
+        self.0 -= rhs.0;
+    }
+}
+
+impl ops::Mul<f64> for Brightness {
+    type Output = Brightness;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Brightness(self.0 * rhs)
+    }
+}
+
+impl ops::MulAssign<f64> for Brightness {
+    fn mul_assign(&mut self, rhs: f64) {
+        self.0 *= rhs;
+    }
+}
+
+impl ops::Mul<Brightness> for f64 {
+    type Output = Brightness;
+
+    fn mul(self, rhs: Brightness) -> Self::Output {
+        Brightness(rhs.0 * self)
+    }
+}
+
+impl ops::Div<f64> for Brightness {
+    type Output = Brightness;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Brightness(self.0 / rhs)
+    }
+}
+
+impl ops::DivAssign<f64> for Brightness {
+    fn div_assign(&mut self, rhs: f64) {
+        self.0 /= rhs;
     }
 }
 
