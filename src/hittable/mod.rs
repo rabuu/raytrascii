@@ -3,6 +3,7 @@
 use std::fmt::Debug;
 
 use crate::lalg::{Point3, Vec3};
+use crate::material::Material;
 use crate::ray::Ray;
 
 mod sphere;
@@ -20,16 +21,24 @@ pub trait Hittable: Debug + Send + Sync {
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
+    pub mat_ptr: Box<dyn Material>,
     pub t: f64,
     pub is_front_face: bool,
 }
 
 impl HitRecord {
     /// Default shorthand constructor
-    pub fn new(p: Point3, normal: Vec3, t: f64, is_front_face: bool) -> Self {
+    pub fn new(
+        p: Point3,
+        normal: Vec3,
+        mat_ptr: Box<dyn Material>,
+        t: f64,
+        is_front_face: bool,
+    ) -> Self {
         HitRecord {
             p,
             normal,
+            mat_ptr,
             t,
             is_front_face,
         }

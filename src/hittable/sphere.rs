@@ -1,4 +1,5 @@
 use crate::lalg::Point3;
+use crate::material::Material;
 use crate::ray::Ray;
 
 use super::{HitRecord, Hittable};
@@ -8,12 +9,17 @@ use super::{HitRecord, Hittable};
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
+    pub mat_ptr: Box<dyn Material>,
 }
 
 impl Sphere {
     /// Default shorthand constructor
-    pub fn new(center: Point3, radius: f64) -> Self {
-        Sphere { center, radius }
+    pub fn new(center: Point3, radius: f64, mat_ptr: Box<dyn Material>) -> Self {
+        Sphere {
+            center,
+            radius,
+            mat_ptr,
+        }
     }
 }
 
@@ -43,6 +49,8 @@ impl Hittable for Sphere {
 
         let outward_normal = (hit.p - self.center) / self.radius;
         hit.set_face_normal(ray, outward_normal);
+
+        hit.mat_ptr = self.mat_ptr.clone();
 
         Some(hit)
     }
