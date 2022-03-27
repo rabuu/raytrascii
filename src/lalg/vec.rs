@@ -1,4 +1,6 @@
-use std::ops;
+use std::ops::{self, Range};
+
+use rand::Rng;
 
 /// Three-dimensional vector
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -18,6 +20,38 @@ impl Vec3 {
     /// Constructs a vector with `V(0, 0, 0)`
     pub fn origin() -> Self {
         Vec3::new(0.0, 0.0, 0.0)
+    }
+
+    /// Constructs a random vector with values in `[0; 1)`
+    pub fn random() -> Self {
+        Vec3 {
+            x: rand::random::<f64>(),
+            y: rand::random::<f64>(),
+            z: rand::random::<f64>(),
+        }
+    }
+
+    /// Constructs a random vector with values within a given range
+    pub fn random_within_range(range: Range<f64>) -> Self {
+        let mut rng = rand::thread_rng();
+
+        Vec3 {
+            x: rng.gen_range(range.clone()),
+            y: rng.gen_range(range.clone()),
+            z: rng.gen_range(range),
+        }
+    }
+
+    /// Constructs a random vector that is in the unit sphere
+    pub fn random_in_unit_sphere() -> Self {
+        loop {
+            let p = Vec3::random_within_range(-1.0..1.0);
+            if p.len_sq() >= 1.0 {
+                continue;
+            }
+
+            return p;
+        }
     }
 }
 
