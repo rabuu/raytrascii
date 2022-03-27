@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 use raytrascii::brightness::Brightness;
+use raytrascii::hittable::{Hittable, HittableList, Sphere};
 use raytrascii::lalg::{Point3, Vec3};
 use raytrascii::ray::Ray;
 
@@ -18,6 +19,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // canvas
     let (cols, rows) = terminal::size()?;
     let aspect_ratio = cols as f64 / (rows * 2) as f64;
+
+    // scene
+    let sphere1 = Box::new(Sphere::new(Point3::new(0.5, 0.0, -1.0), 0.3));
+    let sphere2 = Box::new(Sphere::new(Point3::new(-0.5, 0.0, -1.0), 0.3));
+
+    let scene = HittableList::new(vec![sphere1, sphere2]);
 
     // camera
     let viewport_height = 2.0;
@@ -40,7 +47,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let ray = Ray::new(origin, direction);
 
-            let brightness = ray_brightness(ray);
+            let brightness = ray_brightness(&ray, &scene);
             stdout.queue(style::Print(brightness))?;
         }
         stdout.queue(style::Print("\n"))?;
@@ -53,8 +60,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn ray_brightness(ray: Ray) -> Brightness {
-    if hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, ray) {
+fn ray_brightness(ray: &Ray, scene: &HittableList) -> Brightness {
+    if let Some(_rec) = scene.hit(ray, 0.0, f64::INFINITY) {
         return Brightness(0.0);
     }
 
@@ -63,14 +70,4 @@ fn ray_brightness(ray: Ray) -> Brightness {
 
     let b = (1.0 - t) * 0.95 + (t * 0.7);
     Brightness(b)
-}
-
-fn hit_sphere(center: Point3, radius: f64, ray: Ray) -> bool {
-    let oc = ray.origin - center;
-    let a = ray.dir.dot(ray.dir);
-    let b = 2.0 * oc.dot(ray.dir);
-    let c = oc.dot(oc) - radius.powi(2);
-    let discr = b.powi(2) - (4.0 * a * c);
-
-    discr > 0.0
 }
