@@ -12,6 +12,7 @@ impl Brightness {
     /// Convert brightness value to a corresponding ASCII character
     pub fn to_ascii(self) -> char {
         let b = self.0.clamp(0.0, 1.0);
+        let b = b.sqrt(); // gamma 2 correction
 
         let idx = ((PALETTE.len() - 1) as f64 * (1.0 - b)).round() as usize;
         PALETTE[idx]
