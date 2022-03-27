@@ -62,6 +62,14 @@ impl ops::SubAssign<Brightness> for Brightness {
     }
 }
 
+impl ops::Mul<Brightness> for Brightness {
+    type Output = Brightness;
+
+    fn mul(self, rhs: Brightness) -> Self::Output {
+        Brightness(self.0 * rhs.0)
+    }
+}
+
 impl ops::Mul<f64> for Brightness {
     type Output = Brightness;
 
