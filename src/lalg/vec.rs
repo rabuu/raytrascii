@@ -1,5 +1,7 @@
 use std::ops::{self, Range};
 
+use crate::color::Color;
+
 use rand::Rng;
 
 /// Three-dimensional vector
@@ -100,6 +102,15 @@ impl Vec3 {
     /// Convert to unit vector
     pub fn unit_vec(self) -> Vec3 {
         self / self.len()
+    }
+
+    /// Convert to [Color] with values in `[0; 255]`
+    pub fn to_color(self) -> Color {
+        let r = self.x.clamp(0.0, 255.0) as usize;
+        let g = self.y.clamp(0.0, 255.0) as usize;
+        let b = self.z.clamp(0.0, 255.0) as usize;
+
+        Color { r, g, b }
     }
 }
 
