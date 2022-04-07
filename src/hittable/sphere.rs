@@ -35,7 +35,7 @@ impl Hittable for Sphere {
             return None;
         }
 
-        let mut root = (-half_b / discriminant.sqrt()) / a;
+        let mut root = (-half_b - discriminant.sqrt()) / a;
         if root < t_min || t_max < root {
             root = (-half_b + discriminant.sqrt()) / a;
             if root < t_min || t_max < root {
