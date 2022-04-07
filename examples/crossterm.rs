@@ -1,14 +1,14 @@
 use std::io::{self, Write};
 
-use raytrascii::brightness::Brightness;
 use raytrascii::camera::Camera;
+use raytrascii::color::Color;
 use raytrascii::hittable::{Hittable, HittableList, Sphere};
 use raytrascii::lalg::{Point3, Vec3};
 use raytrascii::material::Lambertian;
 use raytrascii::ray::Ray;
 
 use crossterm::terminal::{self, ClearType};
-use crossterm::{cursor, style};
+use crossterm::{cursor, queue, style};
 use crossterm::{ExecutableCommand, QueueableCommand};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -21,18 +21,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // canvas
     let (cols, rows) = terminal::size()?;
     let aspect_ratio = cols as f64 / (rows * 2) as f64;
-    let max_depth = 50;
+    let max_depth = 20;
+    let samples_per_pixel = 10;
 
     // scene
     let sphere1 = Box::new(Sphere::new(
-        Point3::new(0.5, 0.0, -1.0),
-        0.3,
-        Box::new(Lambertian::new(Brightness(0.0))),
+        Point3::new(0.0, 0.0, -1.0),
+        0.5,
+        Box::new(Lambertian::new(Color::from_u8(255, 10, 180))),
     ));
     let sphere2 = Box::new(Sphere::new(
-        Point3::new(-0.5, 0.0, -1.0),
-        0.3,
-        Box::new(Lambertian::new(Brightness(0.3))),
+        Point3::new(0.0, -100.5, -1.0),
+        100.0,
+        Box::new(Lambertian::new(Color::from_u8(50, 255, 80))),
     ));
 
     let scene = HittableList::new(vec![sphere1, sphere2]);
@@ -48,13 +49,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // render
     for j in (0..rows).rev() {
         for i in 0..cols {
-            let s = i as f64 / (cols - 1) as f64;
-            let t = j as f64 / (rows - 1) as f64;
+            let mut color = Color::default();
+            for _ in 0..samples_per_pixel {
+                let u = (i as f64 + rand::random::<f64>()) / (cols - 1) as f64;
+                let v = (j as f64 + rand::random::<f64>()) / (rows - 1) as f64;
+                let ray = cam.get_ray(u, v);
+                color += ray_color(&ray, &scene, max_depth);
+            }
 
-            let ray = cam.get_ray(s, t);
-
-            let brightness = ray_brightness(&ray, &scene, max_depth);
-            stdout.queue(style::Print(brightness))?;
+            let color = color.correct(2.0, samples_per_pixel);
+            let style_col = style::Color::Rgb {
+                r: (color.r * 255.0) as u8,
+                g: (color.g * 255.0) as u8,
+                b: (color.b * 255.0) as u8,
+            };
+            queue!(
+                stdout,
+                style::SetForegroundColor(style_col),
+                style::Print('#'),
+                style::ResetColor,
+            )?;
         }
         stdout.queue(style::Print("\n"))?;
     }
@@ -66,21 +80,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn ray_brightness(ray: &Ray, scene: &HittableList, depth: usize) -> Brightness {
+fn ray_color(ray: &Ray, scene: &HittableList, depth: usize) -> Color {
     if depth == 0 {
-        return Brightness(0.0);
+        return Color::black();
     }
 
-    if let Some(rec) = scene.hit(ray, 0.05, f64::INFINITY) {
+    if let Some(rec) = scene.hit(ray, 0.001, f64::INFINITY) {
         if let Some((attenuation, scattered)) = rec.mat_ptr.scatter(ray, &rec) {
-            return attenuation * ray_brightness(&scattered, scene, depth - 1);
+            return attenuation * ray_color(&scattered, scene, depth - 1);
         }
-        return Brightness(0.0);
+        return Color::black();
     }
 
     let unit_dir = ray.dir.unit_vec();
     let t = 0.5 * (unit_dir.y + 1.0);
 
-    let b = (1.0 - t) * 0.95 + (t * 0.7);
-    Brightness(b)
+    let start_color_vec = Color::white();
+    let end_color_vec = Color::from_u8(125, 175, 255);
+
+    (1.0 - t) * start_color_vec + (t * end_color_vec)
 }
