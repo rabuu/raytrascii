@@ -36,21 +36,18 @@ impl Hittable for Sphere {
         }
 
         let mut root = (-half_b / discriminant.sqrt()) / a;
-        if root < t_min || root > t_max {
+        if root < t_min || t_max < root {
             root = (-half_b + discriminant.sqrt()) / a;
-            if root < t_min || root > t_max {
+            if root < t_min || t_max < root {
                 return None;
             }
         }
 
-        let mut hit = HitRecord::default();
-        hit.t = root;
-        hit.p = ray.at(hit.t);
+        let p = ray.at(root);
+        let outward_normal = (p - self.center) / self.radius;
 
-        let outward_normal = (hit.p - self.center) / self.radius;
-        hit.set_face_normal(ray, outward_normal);
-
-        hit.mat_ptr = self.mat_ptr.clone();
+        let hit =
+            HitRecord::new_with_face_normal(p, self.mat_ptr.clone(), root, ray, outward_normal);
 
         Some(hit)
     }

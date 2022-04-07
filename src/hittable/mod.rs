@@ -44,15 +44,24 @@ impl HitRecord {
         }
     }
 
-    /// Helper function to set normal
-    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: Vec3) {
-        self.is_front_face = ray.dir.dot(outward_normal) < 0.0;
+    // TODO: Think about better name
+    /// Alternative constructor that computes normal and front_face automatically
+    pub fn new_with_face_normal(
+        p: Point3,
+        mat_ptr: Box<dyn Material>,
+        t: f64,
+        ray: &Ray,
+        outward_normal: Vec3,
+    ) -> Self {
+        let is_front_face = ray.dir.dot(outward_normal) < 0.0;
 
-        self.normal = if self.is_front_face {
+        let normal = if is_front_face {
             outward_normal
         } else {
             -outward_normal
         };
+
+        HitRecord::new(p, normal, mat_ptr, t, is_front_face)
     }
 }
 
