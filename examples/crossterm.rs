@@ -28,12 +28,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let sphere1 = Box::new(Sphere::new(
         Point3::new(0.0, 0.0, -1.0),
         0.5,
-        Box::new(Lambertian::new(Color::from_u8(255, 10, 180))),
+        Box::new(Lambertian::new(Color::from_u8(153, 40, 8))),
     ));
     let sphere2 = Box::new(Sphere::new(
         Point3::new(0.0, -100.5, -1.0),
         100.0,
-        Box::new(Lambertian::new(Color::from_u8(50, 255, 80))),
+        Box::new(Lambertian::new(Color::from_u8(0, 154, 23))),
     ));
 
     let scene = HittableList::new(vec![sphere1, sphere2]);
@@ -47,7 +47,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cam = Camera::new(lookfrom, lookat, vup, vfov, aspect_ratio);
 
     // render
-    for j in (0..rows).rev() {
+    for j in (0..rows - 2).rev() {
         for i in 0..cols {
             let mut color = Color::default();
             for _ in 0..samples_per_pixel {
