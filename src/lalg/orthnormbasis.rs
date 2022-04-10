@@ -9,11 +9,6 @@ pub struct OrthNormBasis3 {
 }
 
 impl OrthNormBasis3 {
-    /// Default shorthand constructor
-    pub fn new(u: Vec3, v: Vec3, w: Vec3) -> Self {
-        OrthNormBasis3 { u, v, w }
-    }
-
     /// Constructs an orientation orthonormal basis from two points and a "view up" vector
     pub fn orientation(from: Point3, to: Point3, vup: Vec3) -> Self {
         let w = (from - to).unit_vec();
