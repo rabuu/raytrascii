@@ -106,6 +106,15 @@ impl Vec3 {
     pub fn reflect(self, n: Vec3) -> Vec3 {
         self - (2.0 * self.dot(n) * n)
     }
+
+    /// Refract the vector using a unit vector `n` and the quotient of the refractive indices
+    pub fn refract(self, n: Vec3, etai_over_etat: f64) -> Vec3 {
+        let cos_theta = (-self).dot(n).min(1.0);
+        let ray_out_perp = etai_over_etat * (self + cos_theta * n);
+        let ray_out_parallel = -(1.0 - ray_out_perp.len_sq()).abs().sqrt() * n;
+
+        ray_out_perp + ray_out_parallel
+    }
 }
 
 /* INFO */
