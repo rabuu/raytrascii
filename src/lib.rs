@@ -1,8 +1,7 @@
-// TODO: Think about visibility
-pub mod camera;
+mod camera;
 pub mod color;
-pub mod lalg;
-pub mod ray;
+mod lalg;
+mod ray;
 pub mod render;
 pub mod scene;
 mod utils;
