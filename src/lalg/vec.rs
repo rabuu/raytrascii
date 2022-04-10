@@ -101,6 +101,11 @@ impl Vec3 {
     pub fn unit_vec(self) -> Vec3 {
         self / self.len()
     }
+
+    /// Reflect the vector using a unit vector `n`
+    pub fn reflect(self, n: Vec3) -> Vec3 {
+        self - (2.0 * self.dot(n) * n)
+    }
 }
 
 /* INFO */
