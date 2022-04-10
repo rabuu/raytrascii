@@ -11,7 +11,7 @@ use raytrascii::{
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let scene = Scene::builder()
         // ground
-        .add(
+        .add_object(
             Sphere::builder()
                 .center_xyz(0.0, -100.5, -1.0)
                 .radius(100.0)
@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .build_boxed(),
         )
         // left
-        .add(
+        .add_object(
             Sphere::builder()
                 .center_xyz(-0.5, 0.0, -1.0)
                 .radius(0.2)
@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .build_boxed(),
         )
         // right
-        .add(
+        .add_object(
             Sphere::builder()
                 .center_xyz(0.5, 0.0, -1.0)
                 .radius(0.2)
@@ -35,7 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .build_boxed(),
         )
         // middle
-        .add(
+        .add_object(
             Sphere::builder()
                 .center_xyz(0.0, 0.0, -1.0)
                 .radius(0.2)

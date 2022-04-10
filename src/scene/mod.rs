@@ -24,7 +24,7 @@ pub struct SceneBuilder {
 }
 
 impl SceneBuilder {
-    pub fn add(mut self, obj: Box<dyn Hittable>) -> SceneBuilder {
+    pub fn add_object(mut self, obj: Box<dyn Hittable>) -> SceneBuilder {
         self.objects.add(obj);
         self
     }
