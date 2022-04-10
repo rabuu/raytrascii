@@ -1,7 +1,7 @@
 use crate::color::Color;
-use crate::hittable::HitRecord;
 use crate::lalg::Vec3;
 use crate::ray::Ray;
+use crate::scene::hittable::HitRecord;
 
 use super::Material;
 
@@ -18,6 +18,11 @@ impl Metal {
             albedo,
             fuzz: fuzz.clamp(0.0, 1.0),
         }
+    }
+
+    /// Wrap in a `Box`
+    pub fn boxed(self) -> Box<Self> {
+        Box::new(self)
     }
 }
 

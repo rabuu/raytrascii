@@ -1,7 +1,7 @@
 use crate::color::Color;
-use crate::hittable::HitRecord;
 use crate::lalg::Vec3;
 use crate::ray::Ray;
+use crate::scene::hittable::HitRecord;
 
 use super::Material;
 
@@ -14,6 +14,11 @@ impl Lambertian {
     /// Default shorthand constructor
     pub fn new(albedo: Color) -> Self {
         Lambertian { albedo }
+    }
+
+    /// Wrap in a `Box`
+    pub fn boxed(self) -> Box<Self> {
+        Box::new(self)
     }
 }
 

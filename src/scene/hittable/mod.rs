@@ -3,8 +3,8 @@
 use std::fmt::Debug;
 
 use crate::lalg::{Point3, Vec3};
-use crate::material::Material;
 use crate::ray::Ray;
+use crate::scene::material::Material;
 
 mod sphere;
 
@@ -83,6 +83,11 @@ impl HittableList {
     /// Add an object to the container
     pub fn add(&mut self, obj: Box<dyn Hittable>) {
         self.0.push(obj);
+    }
+
+    /// Wrap in a `Box`
+    pub fn boxed(self) -> Box<Self> {
+        Box::new(self)
     }
 }
 

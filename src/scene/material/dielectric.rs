@@ -1,6 +1,6 @@
 use crate::color::Color;
-use crate::hittable::HitRecord;
 use crate::ray::Ray;
+use crate::scene::hittable::HitRecord;
 
 use super::Material;
 
@@ -15,6 +15,11 @@ impl Dielectric {
         Dielectric {
             ir: index_of_refraction,
         }
+    }
+
+    /// Wrap in a `Box`
+    pub fn boxed(self) -> Box<Self> {
+        Box::new(self)
     }
 
     fn reflectance(cosine: f64, ref_idx: f64) -> f64 {

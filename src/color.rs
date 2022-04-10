@@ -228,3 +228,13 @@ impl From<Color> for (f64, f64, f64) {
         (v.r, v.g, v.b)
     }
 }
+
+impl From<Color> for crossterm::style::Color {
+    fn from(col: Color) -> Self {
+        crossterm::style::Color::Rgb {
+            r: (col.r.clamp(0.0, 1.0) * 255.0) as u8,
+            g: (col.g.clamp(0.0, 1.0) * 255.0) as u8,
+            b: (col.b.clamp(0.0, 1.0) * 255.0) as u8,
+        }
+    }
+}

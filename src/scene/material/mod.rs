@@ -1,8 +1,8 @@
 use std::fmt::Debug;
 
 use crate::color::Color;
-use crate::hittable::HitRecord;
 use crate::ray::Ray;
+use crate::scene::hittable::HitRecord;
 
 mod dielectric;
 mod lambertian;
