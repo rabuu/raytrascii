@@ -4,7 +4,7 @@ use raytrascii::camera::Camera;
 use raytrascii::color::Color;
 use raytrascii::hittable::{Hittable, HittableList, Sphere};
 use raytrascii::lalg::{Point3, Vec3};
-use raytrascii::material::Lambertian;
+use raytrascii::material::{Lambertian, Metal};
 use raytrascii::ray::Ray;
 
 use crossterm::terminal::{self, ClearType};
@@ -25,18 +25,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let samples_per_pixel = 10;
 
     // scene
-    let sphere1 = Box::new(Sphere::new(
-        Point3::new(0.0, 0.0, -1.0),
-        0.5,
-        Box::new(Lambertian::new(Color::from_u8(153, 40, 8))),
-    ));
-    let sphere2 = Box::new(Sphere::new(
+    let ground = Box::new(Sphere::new(
         Point3::new(0.0, -100.5, -1.0),
         100.0,
         Box::new(Lambertian::new(Color::from_u8(0, 154, 23))),
     ));
 
-    let scene = HittableList::new(vec![sphere1, sphere2]);
+    let lamb = Box::new(Sphere::new(
+        Point3::new(-0.5, 0.0, -1.0),
+        0.4,
+        Box::new(Lambertian::new(Color::from_u8(255, 0, 0))),
+    ));
+
+    let metal = Box::new(Sphere::new(
+        Point3::new(0.5, 0.0, -1.0),
+        0.4,
+        Box::new(Metal::new(Color::from_u8(0, 0, 255), 0.8)),
+    ));
+
+    let scene = HittableList::new(vec![ground, lamb, metal]);
 
     // camera
     let lookfrom = Point3::origin();
