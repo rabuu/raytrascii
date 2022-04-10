@@ -5,8 +5,10 @@ use crate::hittable::HitRecord;
 use crate::ray::Ray;
 
 mod lambertian;
+mod metal;
 
 pub use lambertian::Lambertian;
+pub use metal::Metal;
 
 /// Material that defines how an object interacts with its environment
 pub trait Material: Debug + Send + Sync {
