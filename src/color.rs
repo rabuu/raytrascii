@@ -236,12 +236,12 @@ impl From<Color> for (f64, f64, f64) {
     }
 }
 
-impl From<Color> for crossterm::style::Color {
+impl From<Color> for terminal::Color {
     fn from(col: Color) -> Self {
-        crossterm::style::Color::Rgb {
-            r: (col.r.clamp(0.0, 1.0) * 255.0) as u8,
-            g: (col.g.clamp(0.0, 1.0) * 255.0) as u8,
-            b: (col.b.clamp(0.0, 1.0) * 255.0) as u8,
-        }
+        terminal::Color::Rgb(
+            (col.r.clamp(0.0, 1.0) * 255.0) as u8,
+            (col.g.clamp(0.0, 1.0) * 255.0) as u8,
+            (col.b.clamp(0.0, 1.0) * 255.0) as u8,
+        )
     }
 }

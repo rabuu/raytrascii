@@ -53,11 +53,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut cam = Camera::default();
 
     // set up terminal
-    let mut stdout = std::io::stdout();
-    crossterm::execute!(stdout, crossterm::cursor::Hide)?;
+    let mut term = terminal::stdout();
+    term.act(terminal::Action::HideCursor)?;
 
     while running.load(atomic::Ordering::SeqCst) {
         raytrascii::render::render(
+            &mut term,
             &scene,
             &cam,
             RenderDimensions::TermSize,
@@ -70,7 +71,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // reset terminal
-    crossterm::execute!(stdout, crossterm::cursor::Show)?;
+    term.act(terminal::Action::ShowCursor)?;
+    term.act(terminal::Action::ClearTerminal(terminal::Clear::All))?;
 
     Ok(())
 }

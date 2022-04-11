@@ -4,12 +4,12 @@ use std::io::Write;
 use std::sync::Arc;
 use std::sync::Mutex;
 
+use terminal::Action;
+use terminal::Terminal;
+use terminal::Value;
+
 use itertools::Itertools;
 use rayon::prelude::*;
-
-use crossterm::ExecutableCommand;
-use crossterm::QueueableCommand;
-use crossterm::{style, terminal};
 
 use crate::camera::Camera;
 use crate::color::Color;
@@ -32,25 +32,35 @@ pub enum RenderMode {
 }
 
 pub fn render(
+    term: &mut Terminal<io::Stdout>,
     scene: &Scene,
     cam: &Camera,
     dimensions: RenderDimensions,
     max_depth: usize,
     samples_per_pixel: usize,
     mode: RenderMode,
-) -> io::Result<()> {
+) -> terminal::error::Result<()> {
     let (cols, rows) = match dimensions {
         RenderDimensions::ConcreteSize { cols, rows } => (cols, rows),
-        RenderDimensions::TermSize => terminal::size()?,
+        RenderDimensions::TermSize => {
+            if let terminal::Retrieved::TerminalSize(cols, rows) = term.get(Value::TerminalSize)? {
+                (cols, rows)
+            } else {
+                panic!("Could not get terminal size");
+            }
+        }
         RenderDimensions::RelativeToTermSize {
             offset_cols,
             offset_rows,
         } => {
-            let (cols, rows) = terminal::size()?;
-            (
-                (cols as i32 + offset_cols) as u16,
-                (rows as i32 + offset_rows) as u16,
-            )
+            if let terminal::Retrieved::TerminalSize(cols, rows) = term.get(Value::TerminalSize)? {
+                (
+                    (cols as i32 + offset_cols) as u16,
+                    (rows as i32 + offset_rows) as u16,
+                )
+            } else {
+                panic!("Could not get terminal size");
+            }
         }
     };
 
@@ -67,7 +77,7 @@ pub fn render(
                 let u = (col as f64 + rand::random::<f64>()) / (cols - 1) as f64;
                 let v = (row as f64 + rand::random::<f64>()) / (rows - 1) as f64;
                 let ray = view.get_ray(u, v);
-                color += ray_color(&ray, &scene, max_depth);
+                color += ray_color(&ray, scene, max_depth);
             }
 
             let color = color.correct(2.0, samples_per_pixel);
@@ -90,7 +100,7 @@ pub fn render(
                     '#'
                 };
 
-            let color: Option<style::Color> =
+            let color: Option<terminal::Color> =
                 if mode == RenderMode::Color || mode == RenderMode::ColorAndBrightness {
                     Some(color.into())
                 } else {
@@ -107,26 +117,23 @@ pub fn render(
         });
     });
 
-    // output
-    let mut stdout = io::stdout();
-
     // clear terminal
-    stdout.execute(terminal::Clear(terminal::ClearType::All))?;
+    term.batch(Action::ClearTerminal(terminal::Clear::All))?;
 
     // output image
     for (_, (ch, color)) in image.lock().unwrap().iter().sorted_by_key(|(&pos, _)| pos) {
         if let Some(color) = color {
-            stdout.queue(style::SetForegroundColor(*color))?;
+            term.batch(Action::SetForegroundColor(*color))?;
         }
 
-        stdout.queue(style::Print(ch))?;
+        term.write_all(&[*ch as u8])?;
 
         if *color != None {
-            stdout.queue(style::ResetColor)?;
+            term.batch(Action::ResetColor)?;
         }
     }
 
-    stdout.flush()?;
+    term.flush_batch()?;
 
     Ok(())
 }
@@ -144,16 +151,16 @@ fn ray_color(ray: &Ray, scene: &Scene, depth: usize) -> Color {
     }
 
     match scene.background {
-        SceneBackground::Solid(col) => return col,
+        SceneBackground::Solid(col) => col,
 
         SceneBackground::VerticalGradient { top, bottom } => {
             let t = 0.5 * (ray.dir.unit_vec().y + 1.0);
-            return (1.0 - t) * bottom + (t * top);
+            (1.0 - t) * bottom + (t * top)
         }
 
         SceneBackground::HorizontalGradient { left, right } => {
             let t = 0.5 * (ray.dir.unit_vec().x + 1.0);
-            return (1.0 - t) * left + (t * right);
+            (1.0 - t) * left + (t * right)
         }
     }
 }

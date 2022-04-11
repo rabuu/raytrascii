@@ -7,7 +7,10 @@ edition = "2021"
 
 [dependencies]
 rand = "0.8"
-crossterm = "0.23"
 itertools = "0.10"
 rayon = "1.5"
 ctrlc = { version = "3.2", features = ["termination"] }
+
+[dependencies.terminal]
+version = "0.2"
+features = ["crossterm-backend"]
