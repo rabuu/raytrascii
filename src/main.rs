@@ -1,4 +1,9 @@
-use std::sync::{atomic, Arc};
+use std::{
+    sync::{atomic, Arc},
+    time::Duration,
+};
+
+use terminal::{Action, Clear, Event, KeyCode, Retrieved, Value};
 
 use raytrascii::{
     camera::Camera,
@@ -54,7 +59,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // set up terminal
     let mut term = terminal::stdout();
-    term.act(terminal::Action::HideCursor)?;
+    term.act(Action::HideCursor)?;
+    term.act(Action::EnableRawMode)?;
+    term.act(Action::EnableMouseCapture)?;
 
     while running.load(atomic::Ordering::SeqCst) {
         raytrascii::render::render(
@@ -67,12 +74,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             RenderMode::ColorAndBrightness,
         )?;
 
-        cam.move_focused(0.02, 0.0, 0.0);
+        if let Retrieved::Event(Some(e)) =
+            term.get(Value::Event(Some(Duration::from_millis(50))))?
+        {
+            match e {
+                Event::Key(key_event) => match key_event.code {
+                    KeyCode::Esc => break,
+                    KeyCode::Up => cam.move_unfocused(0.0, 0.0, -0.01),
+                    KeyCode::Down => cam.move_unfocused(0.0, 0.0, 0.01),
+                    KeyCode::Left => cam.move_unfocused(-0.01, 0.0, 0.0),
+                    KeyCode::Right => cam.move_unfocused(0.01, 0.0, 0.0),
+                    _ => (),
+                },
+                _ => (),
+            }
+        }
     }
 
     // reset terminal
-    term.act(terminal::Action::ShowCursor)?;
-    term.act(terminal::Action::ClearTerminal(terminal::Clear::All))?;
+    term.act(Action::ClearTerminal(Clear::All))?;
+    term.act(Action::DisableMouseCapture)?;
+    term.act(Action::DisableRawMode)?;
+    term.act(Action::ShowCursor)?;
 
     Ok(())
 }
