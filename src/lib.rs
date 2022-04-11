@@ -1,4 +1,4 @@
-mod camera;
+pub mod camera;
 pub mod color;
 mod lalg;
 mod ray;

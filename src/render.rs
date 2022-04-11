@@ -13,7 +13,6 @@ use crossterm::{style, terminal};
 
 use crate::camera::Camera;
 use crate::color::Color;
-use crate::lalg::{Point3, Vec3};
 use crate::ray::Ray;
 use crate::scene::hittable::Hittable;
 use crate::scene::Scene;
@@ -34,6 +33,7 @@ pub enum RenderMode {
 
 pub fn render(
     scene: &Scene,
+    cam: &Camera,
     dimensions: RenderDimensions,
     max_depth: usize,
     samples_per_pixel: usize,
@@ -55,13 +55,7 @@ pub fn render(
     };
 
     let aspect_ratio = cols as f64 / (rows * 2) as f64;
-
-    // set up camera
-    let lookfrom = Point3::origin();
-    let lookat = Point3::new(0.0, 0.0, -1.0);
-    let vup = Vec3::new(0.0, 1.0, 0.0);
-    let vfov = 90.0;
-    let cam = Camera::new(lookfrom, lookat, vup, vfov, aspect_ratio);
+    let view = cam.get_view(aspect_ratio);
 
     // compute the image
     let image = Arc::new(Mutex::new(HashMap::new()));
@@ -72,7 +66,7 @@ pub fn render(
             for _ in 0..samples_per_pixel {
                 let u = (col as f64 + rand::random::<f64>()) / (cols - 1) as f64;
                 let v = (row as f64 + rand::random::<f64>()) / (rows - 1) as f64;
-                let ray = cam.get_ray(u, v);
+                let ray = view.get_ray(u, v);
                 color += ray_color(&ray, &scene, max_depth);
             }
 
