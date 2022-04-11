@@ -80,9 +80,16 @@ impl Color {
         Color { r, g, b }
     }
 
-    /// Convert to a brightness value in `[0, 1)`
+    /// Convert to a brightness value in `[0, 1]`
     pub fn brightness(self) -> f64 {
-        todo!()
+        let linear = 0.2126 * self.r + 0.7152 * self.g + 0.0722 * self.b;
+        let srgb = if linear <= 0.0031308 {
+            12.92 * linear
+        } else {
+            1.055 * linear.powf(1.0 / 2.4) - 0.055
+        };
+
+        srgb.clamp(0.0, 1.0)
     }
 }
 

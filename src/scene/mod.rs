@@ -1,26 +1,41 @@
-use crate::scene::hittable::{Hittable, HittableList};
+use self::hittable::{Hittable, HittableList};
+use crate::color::Color;
 
 pub mod hittable;
 pub mod material;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Clone)]
+pub enum SceneBackground {
+    Solid(Color),
+    VerticalGradient { top: Color, bottom: Color },
+    HorizontalGradient { left: Color, right: Color },
+}
+
+#[derive(Debug)]
 pub struct Scene {
     pub objects: HittableList,
+    pub background: SceneBackground,
 }
 
 impl Scene {
-    pub fn new(objects: HittableList) -> Self {
-        Scene { objects }
+    pub fn new(objects: HittableList, background: SceneBackground) -> Self {
+        Scene {
+            objects,
+            background,
+        }
     }
 
-    pub fn builder() -> SceneBuilder {
-        SceneBuilder::default()
+    pub fn builder(background: SceneBackground) -> SceneBuilder {
+        SceneBuilder {
+            objects: HittableList::empty(),
+            background,
+        }
     }
 }
 
-#[derive(Default)]
 pub struct SceneBuilder {
     objects: HittableList,
+    background: SceneBackground,
 }
 
 impl SceneBuilder {
@@ -30,6 +45,6 @@ impl SceneBuilder {
     }
 
     pub fn build(self) -> Scene {
-        Scene::new(self.objects)
+        Scene::new(self.objects, self.background)
     }
 }

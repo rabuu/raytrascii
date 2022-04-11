@@ -11,6 +11,7 @@ use crate::lalg::{Point3, Vec3};
 use crate::ray::Ray;
 use crate::scene::hittable::Hittable;
 use crate::scene::Scene;
+use crate::scene::SceneBackground;
 
 pub enum RenderDimensions {
     ConcreteSize { cols: u16, rows: u16 },
@@ -76,8 +77,18 @@ pub fn render(
 
             let brightness_char =
                 if mode == RenderMode::Brightness || mode == RenderMode::ColorAndBrightness {
+                    const PALETTE: [char; 69] = [
+                        '$', '@', 'B', '%', '8', '&', 'W', 'M', '#', '*', 'o', 'a', 'h', 'k', 'b',
+                        'd', 'p', 'q', 'w', 'm', 'Z', 'O', '0', 'Q', 'L', 'C', 'J', 'U', 'Y', 'X',
+                        'z', 'c', 'v', 'u', 'n', 'x', 'r', 'j', 'f', 't', '/', '\\', '|', '(', ')',
+                        '1', '{', '}', '[', ']', '?', '-', '_', '+', '~', '<', '>', 'i', '!', 'l',
+                        'I', ';', ':', ',', '"', '^', '`', '\'', '.',
+                    ];
+
                     let b = color.brightness();
-                    '@'
+                    let idx = ((b * PALETTE.len() as f64) as usize).clamp(0, PALETTE.len());
+
+                    PALETTE[idx]
                 } else {
                     '#'
                 };
@@ -110,10 +121,17 @@ fn ray_color(ray: &Ray, scene: &Scene, depth: usize) -> Color {
         return Color::black();
     }
 
-    let t = 0.5 * (ray.dir.unit_vec().y + 1.0);
+    match scene.background {
+        SceneBackground::Solid(col) => return col,
 
-    let start_col = Color::white();
-    let end_col = Color::new(0.7, 0.5, 0.8);
+        SceneBackground::VerticalGradient { top, bottom } => {
+            let t = 0.5 * (ray.dir.unit_vec().y + 1.0);
+            return (1.0 - t) * bottom + (t * top);
+        }
 
-    (1.0 - t) * start_col + (t * end_col)
+        SceneBackground::HorizontalGradient { left, right } => {
+            let t = 0.5 * (ray.dir.unit_vec().x + 1.0);
+            return (1.0 - t) * left + (t * right);
+        }
+    }
 }
