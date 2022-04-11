@@ -1,3 +1,5 @@
+use std::sync::{atomic, Arc};
+
 use raytrascii::{
     color::Color,
     render::{RenderDimensions, RenderMode},
@@ -39,16 +41,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .build();
 
-    raytrascii::render::render(
-        scene,
-        RenderDimensions::RelativeToTermSize {
-            offset_cols: 0,
-            offset_rows: -2,
-        },
-        15,
-        10,
-        RenderMode::ColorAndBrightness,
-    )?;
+    // ctrl-c handling
+    let running = Arc::new(atomic::AtomicBool::new(true));
+    let r = Arc::clone(&running);
+
+    ctrlc::set_handler(move || {
+        r.store(false, atomic::Ordering::SeqCst);
+    })
+    .expect("Error setting Ctrl-c handler");
+
+    // set up terminal
+    let mut stdout = std::io::stdout();
+    crossterm::execute!(stdout, crossterm::cursor::Hide)?;
+
+    while running.load(atomic::Ordering::SeqCst) {
+        raytrascii::render::render(
+            &scene,
+            RenderDimensions::TermSize,
+            15,
+            10,
+            RenderMode::ColorAndBrightness,
+        )?;
+    }
+
+    // reset terminal
+    crossterm::execute!(stdout, crossterm::cursor::Show)?;
 
     Ok(())
 }

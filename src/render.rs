@@ -9,7 +9,7 @@ use rayon::prelude::*;
 
 use crossterm::ExecutableCommand;
 use crossterm::QueueableCommand;
-use crossterm::{cursor, style, terminal};
+use crossterm::{style, terminal};
 
 use crate::camera::Camera;
 use crate::color::Color;
@@ -33,7 +33,7 @@ pub enum RenderMode {
 }
 
 pub fn render(
-    scene: Scene,
+    scene: &Scene,
     dimensions: RenderDimensions,
     max_depth: usize,
     samples_per_pixel: usize,
@@ -116,9 +116,8 @@ pub fn render(
     // output
     let mut stdout = io::stdout();
 
-    // set up terminal
+    // clear terminal
     stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-    stdout.execute(cursor::Hide)?;
 
     // output image
     for (_, (ch, color)) in image.lock().unwrap().iter().sorted_by_key(|(&pos, _)| pos) {
@@ -134,9 +133,6 @@ pub fn render(
     }
 
     stdout.flush()?;
-
-    // reset terminal
-    stdout.execute(cursor::Show)?;
 
     Ok(())
 }
