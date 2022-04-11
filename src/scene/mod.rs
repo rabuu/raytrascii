@@ -1,5 +1,5 @@
-use self::hittable::{Hittable, HittableList};
 use crate::color::Color;
+use hittable::{Hittable, HittableList};
 
 pub mod hittable;
 pub mod material;
