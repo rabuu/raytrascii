@@ -3,7 +3,7 @@ use raytrascii::{
     render::{RenderDimensions, RenderMode},
     scene::{
         hittable::Sphere,
-        material::{Dielectric, Lambertian, Metal},
+        material::{Lambertian, Metal},
         Scene, SceneBackground,
     },
 };

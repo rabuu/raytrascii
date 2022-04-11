@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 rand = "0.8"
 crossterm = "0.23"
+itertools = "0.10"
+rayon = "1.5"

@@ -1,5 +1,11 @@
+use std::collections::HashMap;
 use std::io;
 use std::io::Write;
+use std::sync::Arc;
+use std::sync::Mutex;
+
+use itertools::Itertools;
+use rayon::prelude::*;
 
 use crossterm::ExecutableCommand;
 use crossterm::QueueableCommand;
@@ -33,8 +39,6 @@ pub fn render(
     samples_per_pixel: usize,
     mode: RenderMode,
 ) -> io::Result<()> {
-    let mut stdout = io::stdout();
-
     let (cols, rows) = match dimensions {
         RenderDimensions::ConcreteSize { cols, rows } => (cols, rows),
         RenderDimensions::TermSize => terminal::size()?,
@@ -59,12 +63,11 @@ pub fn render(
     let vfov = 90.0;
     let cam = Camera::new(lookfrom, lookat, vup, vfov, aspect_ratio);
 
-    // set up terminal
-    stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-    stdout.execute(cursor::Hide)?;
+    // compute the image
+    let image = Arc::new(Mutex::new(HashMap::new()));
 
-    for row in (0..rows).rev() {
-        for col in 0..cols {
+    (0..rows).into_par_iter().for_each(|row| {
+        (0..cols).into_par_iter().for_each(|col| {
             let mut color = Color::default();
             for _ in 0..samples_per_pixel {
                 let u = (col as f64 + rand::random::<f64>()) / (cols - 1) as f64;
@@ -93,14 +96,43 @@ pub fn render(
                     '#'
                 };
 
-            if mode == RenderMode::Color || mode == RenderMode::ColorAndBrightness {
-                crossterm::queue!(stdout, style::SetForegroundColor(color.into()))?;
-            }
+            let color: Option<style::Color> =
+                if mode == RenderMode::Color || mode == RenderMode::ColorAndBrightness {
+                    Some(color.into())
+                } else {
+                    None
+                };
 
-            crossterm::queue!(stdout, style::Print(brightness_char), style::ResetColor)?;
+            let position = ((rows - row) * cols) + col;
+
+            let img = Arc::clone(&image);
+
+            img.lock()
+                .unwrap()
+                .insert(position, (brightness_char, color));
+        });
+    });
+
+    // output
+    let mut stdout = io::stdout();
+
+    // set up terminal
+    stdout.execute(terminal::Clear(terminal::ClearType::All))?;
+    stdout.execute(cursor::Hide)?;
+
+    // output image
+    for (_, (ch, color)) in image.lock().unwrap().iter().sorted_by_key(|(&pos, _)| pos) {
+        if let Some(color) = color {
+            stdout.queue(style::SetForegroundColor(*color))?;
         }
-        stdout.queue(style::Print('\n'))?;
+
+        stdout.queue(style::Print(ch))?;
+
+        if *color != None {
+            stdout.queue(style::ResetColor)?;
+        }
     }
+
     stdout.flush()?;
 
     // reset terminal
