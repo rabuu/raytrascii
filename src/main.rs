@@ -3,10 +3,13 @@ use std::{
     time::Duration,
 };
 
-use terminal::{Action, Clear, Event, KeyCode, Retrieved, Value};
+use terminal::{Action, Clear, Event, KeyCode, KeyModifiers, Retrieved, Value};
 
 use raytrascii::{
-    camera::Camera,
+    camera::{
+        direction::{MoveDirection, RotationDirection},
+        Camera,
+    },
     color::Color,
     render::{RenderDimensions, RenderMode},
     scene::{
@@ -74,16 +77,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             RenderMode::ColorAndBrightness,
         )?;
 
-        if let Retrieved::Event(Some(e)) =
+        const MOVEMENT_SPEED: f64 = 0.03;
+
+        if let Retrieved::Event(Some(event)) =
             term.get(Value::Event(Some(Duration::from_millis(50))))?
         {
-            match e {
+            match event {
                 Event::Key(key_event) => match key_event.code {
                     KeyCode::Esc => break,
-                    KeyCode::Up => cam.move_unfocused(0.0, 0.0, -0.01),
-                    KeyCode::Down => cam.move_unfocused(0.0, 0.0, 0.01),
-                    KeyCode::Left => cam.move_unfocused(-0.01, 0.0, 0.0),
-                    KeyCode::Right => cam.move_unfocused(0.01, 0.0, 0.0),
+                    KeyCode::Up => {
+                        if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+                            cam.move_relative(MoveDirection::Up, MOVEMENT_SPEED);
+                        } else {
+                            cam.move_relative(MoveDirection::Forward, MOVEMENT_SPEED);
+                        }
+                    }
+                    KeyCode::Down => {
+                        if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+                            cam.move_relative(MoveDirection::Down, MOVEMENT_SPEED);
+                        } else {
+                            cam.move_relative(MoveDirection::Backward, MOVEMENT_SPEED);
+                        }
+                    }
+                    KeyCode::Left => {
+                        if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+                            cam.rotate(RotationDirection::Left, MOVEMENT_SPEED);
+                        } else {
+                            cam.move_relative(MoveDirection::Left, MOVEMENT_SPEED);
+                        }
+                    }
+                    KeyCode::Right => {
+                        if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+                            cam.rotate(RotationDirection::Right, MOVEMENT_SPEED);
+                        } else {
+                            cam.move_relative(MoveDirection::Right, MOVEMENT_SPEED);
+                        }
+                    }
                     _ => (),
                 },
                 _ => (),

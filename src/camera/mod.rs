@@ -1,8 +1,10 @@
 use crate::lalg::{OrthNormBasis3, Point3, Vec3};
 use crate::utils;
 
+use direction::{MoveDirection, RotationDirection};
 use view::CameraView;
 
+pub mod direction;
 mod view;
 
 #[derive(Debug, Clone)]
@@ -49,7 +51,7 @@ impl Camera {
 
 /* MOVEMENT */
 impl Camera {
-    pub fn move_unfocused(&mut self, x: f64, y: f64, z: f64) {
+    pub fn move_absolute(&mut self, x: f64, y: f64, z: f64) {
         self.pos.x += x;
         self.pos.y += y;
         self.pos.z += z;
@@ -59,9 +61,51 @@ impl Camera {
         self.lookat.z += z;
     }
 
-    pub fn move_focused(&mut self, x: f64, y: f64, z: f64) {
-        self.pos.x += x;
-        self.pos.y += y;
-        self.pos.z += z;
+    pub fn move_relative(&mut self, dir: MoveDirection, step: f64) {
+        let look_dir: Vec3 = (self.lookat - self.pos).unit_vec();
+
+        match dir {
+            MoveDirection::Forward => {
+                self.pos += look_dir * step;
+                self.lookat += look_dir * step;
+            }
+            MoveDirection::Backward => {
+                self.pos -= look_dir * step;
+                self.lookat -= look_dir * step;
+            }
+            MoveDirection::Left => {
+                let dir = self.vup.cross(look_dir);
+                self.pos += dir * step;
+                self.lookat += dir * step;
+            }
+            MoveDirection::Right => {
+                let dir = self.vup.cross(look_dir);
+                self.pos -= dir * step;
+                self.lookat -= dir * step;
+            }
+            MoveDirection::Up => {
+                self.pos += self.vup * step;
+                self.lookat += self.vup * step;
+            }
+            MoveDirection::Down => {
+                self.pos -= self.vup * step;
+                self.lookat -= self.vup * step;
+            }
+        }
+    }
+
+    pub fn rotate(&mut self, dir: RotationDirection, step: f64) {
+        let look_dir: Vec3 = (self.lookat - self.pos).unit_vec();
+
+        match dir {
+            RotationDirection::Left => {
+                let dir = self.vup.cross(look_dir);
+                self.lookat += dir * step;
+            }
+            RotationDirection::Right => {
+                let dir = self.vup.cross(look_dir);
+                self.lookat -= dir * step;
+            }
+        }
     }
 }
