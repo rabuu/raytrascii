@@ -1,3 +1,5 @@
+//! The virtual camera
+
 use crate::lalg::{OrthNormBasis3, Point3, Vec3};
 use crate::utils;
 
@@ -7,6 +9,7 @@ use view::CameraView;
 pub mod direction;
 mod view;
 
+/// Virtual movable camera
 #[derive(Debug, Clone)]
 pub struct Camera {
     pos: Point3,
@@ -27,6 +30,7 @@ impl Default for Camera {
 }
 
 impl Camera {
+    /// Get a static view on the scene
     pub(crate) fn get_view(&self, aspect_ratio: f64) -> CameraView {
         let theta = utils::degrees_to_radians(self.vfov);
         let h = (theta / 2.0).tan();
@@ -51,16 +55,18 @@ impl Camera {
 
 /* MOVEMENT */
 impl Camera {
+    /// Move the camera to absolute coordinates
     pub fn move_absolute(&mut self, x: f64, y: f64, z: f64) {
-        self.pos.x += x;
-        self.pos.y += y;
-        self.pos.z += z;
+        self.pos.x = x;
+        self.pos.y = y;
+        self.pos.z = z;
 
-        self.lookat.x += x;
-        self.lookat.y += y;
-        self.lookat.z += z;
+        self.lookat.x = x;
+        self.lookat.y = y;
+        self.lookat.z = z;
     }
 
+    /// Move the camera in a relative direction
     pub fn move_relative(&mut self, dir: MoveDirection, step: f64) {
         let look_dir: Vec3 = (self.lookat - self.pos).unit_vec();
 
@@ -94,6 +100,7 @@ impl Camera {
         }
     }
 
+    /// Rotate the camera in a relative direction
     pub fn rotate(&mut self, dir: RotationDirection, step: f64) {
         let look_dir: Vec3 = (self.lookat - self.pos).unit_vec();
 

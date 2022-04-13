@@ -1,3 +1,5 @@
+//! Output rendering
+
 use std::collections::HashMap;
 use std::io;
 use std::io::Write;
@@ -18,12 +20,14 @@ use crate::scene::hittable::Hittable;
 use crate::scene::Scene;
 use crate::scene::SceneBackground;
 
+/// Dimensions/size of the rendered output
 pub enum RenderDimensions {
     ConcreteSize { cols: u16, rows: u16 },
     TermSize,
     RelativeToTermSize { offset_cols: i32, offset_rows: i32 },
 }
 
+/// Mode of the rendered output
 #[derive(Debug, PartialEq, Eq)]
 pub enum RenderMode {
     Brightness,
@@ -31,6 +35,7 @@ pub enum RenderMode {
     ColorAndBrightness,
 }
 
+/// Main render function that composes a scene and a camera and outputs an image
 pub fn render(
     term: &mut Terminal<io::Stdout>,
     scene: &Scene,
@@ -138,6 +143,7 @@ pub fn render(
     Ok(())
 }
 
+/// Return the output color of a specific ray
 fn ray_color(ray: &Ray, scene: &Scene, depth: usize) -> Color {
     if depth == 0 {
         return Color::black();

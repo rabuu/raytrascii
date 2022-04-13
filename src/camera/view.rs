@@ -11,7 +11,7 @@ pub(crate) struct CameraView {
 }
 
 impl CameraView {
-    /// Return the [Ray] located at a given point in the viewport
+    /// Return the ray located at a given point in the viewport
     pub(crate) fn get_ray(&self, s: f64, t: f64) -> Ray {
         Ray {
             origin: self.origin,

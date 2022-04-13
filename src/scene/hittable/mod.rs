@@ -12,7 +12,7 @@ pub use sphere::Sphere;
 
 /// Trait for objects that can be hit
 pub trait Hittable: Debug + Send + Sync {
-    /// Function that indicates whether a [`Ray`] hits the object
+    /// Function that indicates whether a ray hits the object
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 

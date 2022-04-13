@@ -1,3 +1,5 @@
+//! ASCII ray tracing for the terminal
+
 pub mod camera;
 pub mod color;
 mod lalg;

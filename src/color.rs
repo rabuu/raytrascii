@@ -1,3 +1,5 @@
+//! Computation of colors
+
 use std::ops;
 
 use rand::Rng;

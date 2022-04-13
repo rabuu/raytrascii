@@ -1,3 +1,5 @@
+//! Object materials
+
 use std::fmt::Debug;
 
 use crate::color::Color;
@@ -27,6 +29,7 @@ impl Clone for Box<dyn Material> {
     }
 }
 
+/// Default non-scattering material
 #[derive(Debug, Clone)]
 pub struct DefaultMaterial;
 

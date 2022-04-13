@@ -1,3 +1,6 @@
+//! Camera movement directions
+
+/// Directions in which to move
 #[derive(Debug)]
 pub enum MoveDirection {
     Forward,
@@ -8,6 +11,7 @@ pub enum MoveDirection {
     Down,
 }
 
+/// Directions to rotate in
 #[derive(Debug)]
 pub enum RotationDirection {
     Left,
