@@ -33,6 +33,13 @@ impl Clone for Box<dyn Material> {
 #[derive(Debug, Clone)]
 pub struct DefaultMaterial;
 
+impl DefaultMaterial {
+    /// Wrap in a `Box`
+    pub fn boxed(self) -> Box<Self> {
+        Box::new(self)
+    }
+}
+
 impl Material for DefaultMaterial {
     fn scatter(&self, _ray_in: &Ray, _rec: &HitRecord) -> Option<(Color, Ray)> {
         None
