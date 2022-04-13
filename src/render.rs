@@ -1,6 +1,5 @@
 //! Output rendering
 
-use std::collections::HashMap;
 use std::io;
 use std::io::Write;
 use std::sync::Arc;
@@ -10,7 +9,6 @@ use terminal::Action;
 use terminal::Terminal;
 use terminal::Value;
 
-use itertools::Itertools;
 use rayon::prelude::*;
 
 use crate::camera::Camera;
@@ -72,8 +70,9 @@ pub fn render(
     let aspect_ratio = cols as f64 / (rows * 2) as f64;
     let view = cam.get_view(aspect_ratio);
 
-    // compute the image
-    let image = Arc::new(Mutex::new(HashMap::new()));
+    // compute the output
+    let output: Vec<Option<(char, Option<terminal::Color>)>> = vec![None; (cols * rows) as usize];
+    let output = Arc::new(Mutex::new(output));
 
     (0..rows).into_par_iter().for_each(|row| {
         (0..cols).into_par_iter().for_each(|col| {
@@ -112,13 +111,9 @@ pub fn render(
                     None
                 };
 
-            let position = ((rows - row) * cols) + col;
-
-            let img = Arc::clone(&image);
-
-            img.lock()
-                .unwrap()
-                .insert(position, (brightness_char, color));
+            let position = ((rows - row - 1) * cols) + col;
+            let output = Arc::clone(&output);
+            output.lock().unwrap()[position as usize] = Some((brightness_char, color));
         });
     });
 
@@ -126,14 +121,14 @@ pub fn render(
     term.batch(Action::ClearTerminal(terminal::Clear::All))?;
 
     // output image
-    for (_, (ch, color)) in image.lock().unwrap().iter().sorted_by_key(|(&pos, _)| pos) {
+    for (ch, color) in output.lock().unwrap().iter().map(|o| o.unwrap()) {
         if let Some(color) = color {
-            term.batch(Action::SetForegroundColor(*color))?;
+            term.batch(Action::SetForegroundColor(color))?;
         }
 
-        term.write_all(&[*ch as u8])?;
+        term.write_all(&[ch as u8])?;
 
-        if *color != None {
+        if color != None {
             term.batch(Action::ResetColor)?;
         }
     }
