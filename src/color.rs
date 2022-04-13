@@ -40,7 +40,7 @@ impl Color {
         }
     }
 
-    /// Contructs a white color with (255, 255, 255) values
+    /// Contructs a white color with (1, 1, 1) values
     pub fn white() -> Self {
         Color {
             r: 1.0,
@@ -49,7 +49,7 @@ impl Color {
         }
     }
 
-    /// Constructs a random color with values in `[0; 255]`
+    /// Constructs a random color with values in `[0; 1]`
     pub fn random() -> Self {
         let mut rng = rand::thread_rng();
 
@@ -90,15 +90,6 @@ impl Color {
         };
 
         srgb.clamp(0.0, 1.0)
-    }
-}
-
-/* INFO */
-impl Color {
-    /// Return `true` if color is close to zero in all values
-    pub fn near_zero(&self) -> bool {
-        let s = 10_f64.powi(-8);
-        (self.r.abs() < s) && (self.g.abs() < s) && (self.b.abs() < s)
     }
 }
 
