@@ -33,7 +33,7 @@ impl Color {
         }
     }
 
-    /// Contructs a black color with (0, 0, 0) values
+    /// Constructs a black color with (0, 0, 0) values
     pub fn black() -> Self {
         Color {
             r: 0.0,
@@ -42,7 +42,7 @@ impl Color {
         }
     }
 
-    /// Contructs a white color with (1, 1, 1) values
+    /// Constructs a white color with (1, 1, 1) values
     pub fn white() -> Self {
         Color {
             r: 1.0,
