@@ -4,6 +4,7 @@ use crate::lalg::Point3;
 use crate::ray::Ray;
 
 /// Axis-aligned bounding box
+#[derive(Debug, Clone)]
 pub struct Aabb {
     pub min: Point3,
     pub max: Point3,
