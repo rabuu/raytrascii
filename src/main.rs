@@ -13,7 +13,7 @@ use raytrascii::{
     color::Color,
     render::{RenderDimensions, RenderMode},
     scene::{
-        hittable::Sphere,
+        hittable::{Sphere, XyRect},
         material::{Lambertian, Metal},
         Scene, SceneBackground,
     },
@@ -28,6 +28,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         r.store(false, atomic::Ordering::SeqCst);
     })
     .expect("Error setting Ctrl-c handler");
+
+    let test_rect = XyRect::new(
+        (3.0, 5.0),
+        (1.0, 3.0),
+        -2.0,
+        Lambertian::new(Color::from_u8(255, 255, 0)).boxed(),
+    );
 
     // create scene
     let scene = Scene::builder(SceneBackground::Solid(Color::white()))
@@ -55,6 +62,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .material(Metal::new(Color::from_u8(0, 0, 255), 0.8).boxed())
                 .build_boxed(),
         )
+        .add_object(Box::new(test_rect))
         .build();
 
     // create camera
