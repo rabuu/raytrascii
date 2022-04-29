@@ -2,11 +2,12 @@
 
 use std::fmt::Debug;
 
-use crate::aabb::Aabb;
 use crate::lalg::{Point3, Vec3};
 use crate::ray::Ray;
 use crate::scene::material::Material;
+use aabb::Aabb;
 
+mod aabb;
 mod sphere;
 
 pub use sphere::Sphere;

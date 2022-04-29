@@ -1,8 +1,8 @@
-use crate::aabb::Aabb;
 use crate::lalg::{Point3, Vec3};
 use crate::ray::Ray;
 use crate::scene::material::Material;
 
+use super::aabb::Aabb;
 use super::{HitRecord, Hittable};
 
 /// A sphere object
