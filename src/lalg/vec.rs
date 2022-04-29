@@ -253,6 +253,20 @@ impl ops::DivAssign<f64> for Vec3 {
     }
 }
 
+/* INDEXING */
+impl ops::Index<usize> for Vec3 {
+    type Output = f64;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!("Index is out of bounds"),
+        }
+    }
+}
+
 /* TYPE CONVERSION */
 impl From<[f64; 3]> for Vec3 {
     fn from(arr: [f64; 3]) -> Self {
