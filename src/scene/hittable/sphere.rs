@@ -1,4 +1,5 @@
-use crate::lalg::Point3;
+use crate::aabb::Aabb;
+use crate::lalg::{Point3, Vec3};
 use crate::ray::Ray;
 use crate::scene::material::Material;
 
@@ -55,6 +56,15 @@ impl Hittable for Sphere {
             HitRecord::new_with_face_normal(p, self.mat_ptr.clone(), root, ray, outward_normal);
 
         Some(hit)
+    }
+
+    fn bounding_box(&self) -> Option<Aabb> {
+        let aabb = Aabb {
+            min: self.center - Vec3::new(self.radius, self.radius, self.radius),
+            max: self.center + Vec3::new(self.radius, self.radius, self.radius),
+        };
+
+        Some(aabb)
     }
 }
 

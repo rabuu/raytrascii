@@ -3,7 +3,8 @@
 use crate::lalg::Point3;
 use crate::ray::Ray;
 
-pub(crate) struct Aabb {
+/// Axis-aligned bounding box
+pub struct Aabb {
     pub min: Point3,
     pub max: Point3,
 }
@@ -34,5 +35,21 @@ impl Aabb {
         }
 
         true
+    }
+
+    pub fn surrounding_box(box0: Aabb, box1: Aabb) -> Aabb {
+        let small = Point3 {
+            x: box0.min.x.min(box1.min.x),
+            y: box0.min.y.min(box1.min.y),
+            z: box0.min.z.min(box1.min.z),
+        };
+
+        let big = Point3 {
+            x: box0.max.x.max(box1.max.x),
+            y: box0.max.y.max(box1.max.y),
+            z: box0.max.z.max(box1.max.z),
+        };
+
+        Aabb::new(small, big)
     }
 }

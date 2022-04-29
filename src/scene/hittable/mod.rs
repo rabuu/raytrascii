@@ -2,6 +2,7 @@
 
 use std::fmt::Debug;
 
+use crate::aabb::Aabb;
 use crate::lalg::{Point3, Vec3};
 use crate::ray::Ray;
 use crate::scene::material::Material;
@@ -14,6 +15,9 @@ pub use sphere::Sphere;
 pub trait Hittable: Debug + Send + Sync {
     /// Function that indicates whether a ray hits the object
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
+
+    /// Return bounding box
+    fn bounding_box(&self) -> Option<Aabb>;
 }
 
 /// Structure to store some information about a hit
@@ -110,5 +114,30 @@ impl Hittable for HittableList {
         }
 
         hit
+    }
+
+    fn bounding_box(&self) -> Option<Aabb> {
+        if self.0.is_empty() {
+            return None;
+        }
+
+        let mut output_box = None;
+        let mut first_box = true;
+
+        for obj in self.0.iter() {
+            if let Some(tmp_box) = obj.bounding_box() {
+                output_box = Some(if first_box {
+                    tmp_box
+                } else {
+                    Aabb::surrounding_box(output_box.unwrap(), tmp_box)
+                });
+
+                first_box = false;
+            } else {
+                return None;
+            }
+        }
+
+        output_box
     }
 }
