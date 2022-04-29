@@ -8,8 +8,10 @@ use crate::scene::material::Material;
 use aabb::Aabb;
 
 mod aabb;
+mod aarect;
 mod sphere;
 
+pub use aarect::XyRect;
 pub use sphere::Sphere;
 
 /// Trait for objects that can be hit
