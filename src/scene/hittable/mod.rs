@@ -11,7 +11,7 @@ mod aabb;
 mod aarect;
 mod sphere;
 
-pub use aarect::XyRect;
+pub use aarect::{AaRect, AaRectPlaneCoords};
 pub use sphere::Sphere;
 
 /// Trait for objects that can be hit

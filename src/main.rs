@@ -13,7 +13,7 @@ use raytrascii::{
     color::Color,
     render::{RenderDimensions, RenderMode},
     scene::{
-        hittable::{Sphere, XyRect},
+        hittable::{AaRect, AaRectPlaneCoords, Sphere},
         material::{Lambertian, Metal},
         Scene, SceneBackground,
     },
@@ -29,10 +29,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     })
     .expect("Error setting Ctrl-c handler");
 
-    let test_rect = XyRect::new(
-        (3.0, 5.0),
-        (1.0, 3.0),
-        -2.0,
+    let test_rect = AaRect::new(
+        // (3.0, 5.0),
+        // (1.0, 3.0),
+        AaRectPlaneCoords::Xz {
+            x: (3.0, 5.0),
+            z: (1.0, 3.0),
+        },
+        2.0,
         Lambertian::new(Color::from_u8(255, 255, 0)).boxed(),
     );
 
